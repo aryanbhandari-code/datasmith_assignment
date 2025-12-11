@@ -1,0 +1,12 @@
+fastapi[all]
+uvicorn
+pydantic
+python-multipart
+python-dotenv
+requests 
+pdfplumber      
+Pillow          
+pytesseract     
+youtube-transcript-api 
+whisper-timestamped    
+pandas 

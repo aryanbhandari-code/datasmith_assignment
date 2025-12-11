@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>DataSmith Agent</title>
+    <style>
+        body { font-family: sans-serif; max-width: 800px; margin: auto; padding: 20px; background: #f4f4f4; }
+        #chat-window { border: 1px solid #ccc; height: 400px; overflow-y: scroll; padding: 10px; background: white; margin-bottom: 10px; }
+        .message { margin-bottom: 10px; padding: 8px; border-radius: 5px; }
+        .user { background: #dcf8c6; text-align: right; }
+        .agent { background: #eee; text-align: left; }
+        textarea, input[type="file"] { width: 100%; margin-top: 5px; }
+        button { padding: 10px 15px; background: #007bff; color: white; border: none; cursor: pointer; }
+    </style>
+</head>
+<body>
+    <h2>DataSmith Agentic Application</h2>
+    <div id="chat-window"></div>
+
+    <form id="submission-form">
+        <textarea id="query" placeholder="Enter your query or goal..." rows="3"></textarea>
+        <input type="file" id="file" name="file" accept=".txt,.jpg,.png,.pdf,.mp3,.wav,.m4a">
+        <button type="submit">Send to Agent</button>
+    </form>
+
+    <script>
+        const chatWindow = document.getElementById('chat-window');
+        const form = document.getElementById('submission-form');
+
+        function addMessage(sender, content) {
+            const msg = document.createElement('div');
+            msg.className = `message ${sender}`;
+            msg.innerHTML = content.replace(/\n/g, '<br>');
+            chatWindow.appendChild(msg);
+            chatWindow.scrollTop = chatWindow.scrollHeight;
+        }
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const query = document.getElementById('query').value;
+            const fileInput = document.getElementById('file');
+            const file = fileInput.files[0];
+
+            if (!query && !file) {
+                alert("Please provide text or a file.");
+                return;
+            }
+
+            // Show user message
+            let userContent = `**You:** ${query}`;
+            if (file) {
+                userContent += `<br>**(File attached: ${file.name})**`;
+            }
+            addMessage('user', userContent);
+
+            const formData = new FormData();
+            formData.append('query', query);
+            if (file) {
+                formData.append('file', file);
+            }
+
+            addMessage('agent', 'Agent is thinking...');
+
+            try {
+                const response = await fetch('/process', {
+                    method: 'POST',
+                    body: formData,
+                });
+                const data = await response.json();
+                
+                const lastMessage = chatWindow.lastChild;
+                lastMessage.remove(); // Remove "Agent is thinking..."
+
+                let agentResult = `**Status:** ${data.status}<br><br>`;
+                
+                if (data.extracted_text) {
+                    agentResult += `**Extracted Text:** <pre>${data.extracted_text.substring(0, 300)}...</pre><br>`;
+                }
+
+                agentResult += `**Final Result:** <pre>${data.result}</pre><br>`;
+                
+                // Show Plan/Log (Explainability Requirement)
+                agentResult += `**Execution Plan (Log):**<br><ul>`;
+                data.log.forEach(item => {
+                    agentResult += `<li>${item}</li>`;
+                });
+                agentResult += `</ul>`;
+
+                addMessage('agent', agentResult);
+
+                // Clear input after submission
+                document.getElementById('query').value = '';
+                fileInput.value = '';
+
+            } catch (error) {
+                console.error('Error:', error);
+                addMessage('agent', 'Error: Failed to connect to agent or process request.');
+            }
+        });
+    </script>
+</body>
+</html>
