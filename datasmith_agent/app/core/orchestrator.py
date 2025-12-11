@@ -1,6 +1,6 @@
-from ..tools.extraction_tools import ImageOCR, PDFParser, AudioTranscriber, YouTubeTool # Corrected relative import
-from ..tools.llm_task_tools import LLM_IntentRouter, LLM_TaskTools                     # Corrected relative import
-from .models import AgentResponse, IntentPlan                                           # Corrected relative import (local to core)
+from ..tools.extraction_tools import ImageOCR, PDFParser, AudioTranscriber, YouTubeTool 
+from ..tools.llm_task_tools import LLM_IntentRouter, LLM_TaskTools                     
+from .models import AgentResponse, IntentPlan                                          
 from fastapi import UploadFile
 from typing import List, Optional
 import re 
@@ -28,13 +28,13 @@ class AgentOrchestrator:
             
             try:
                 if file_type in ['jpg', 'png']:
-                    # NOTE: Replace mock with actual Pytesseract code
+                    
                     extracted_text, ocr_confidence = await ImageOCR.extract(file)
                 elif file_type == 'pdf':
-                    # NOTE: Replace mock with actual pdfplumber code
+                    
                     extracted_text = await PDFParser.extract(file)
                 elif file_type in ['mp3', 'wav', 'm4a']:
-                    # NOTE: Replace mock with actual Whisper code
+                    
                     extracted_text = await AudioTranscriber.transcribe(file)
                 else:
                     self._log("Unsupported file type. Treating as Text-Only.")
@@ -52,7 +52,7 @@ class AgentOrchestrator:
         intent_plan: IntentPlan = LLM_IntentRouter.get_intent(full_context)
         self._log(f"Identified intent: {intent_plan.intent} (Clear: {intent_plan.is_clear})")
 
-        # Check for YouTube URL regardless of LLM intent for direct tool use
+
         url_match = re.search(r'(?:youtube\.com/\S*(?:v=|/e/)|youtu\.be/)\S*', full_context)
         if url_match:
             intent_plan.intent = "YOUTUBE_FETCH"

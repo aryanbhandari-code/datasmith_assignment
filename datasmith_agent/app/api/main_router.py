@@ -9,7 +9,7 @@ router = APIRouter()
 orchestrator = AgentOrchestrator()
 
 # Define the absolute path to the templates folder
-BASE_DIR = Path(__file__).resolve().parent.parent # points to 'app/' directory
+BASE_DIR = Path(__file__).resolve().parent.parent
 TEMPLATE_PATH = BASE_DIR / "templates" / "chat_ui.html"
 
 @router.get("/", response_class=HTMLResponse)

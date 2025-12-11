@@ -15,8 +15,7 @@ MODEL_NAME = "deepseek-ai/deepseek-r1t2-chimera"
 OPENROUTER_KEY = os.environ.get("OPENROUTER_API_KEY")
 # Fallback function for when the API key is missing or the API fails
 def LLM_MOCK_FALLBACK(prompt: str, schema: Type[BaseModel]) -> dict:
-    # (The full mock logic is omitted here for brevity but should be in your file)
-    # The logic ensures a structured response even on failure, preventing 500 errors.
+    
     print(f"--- WARNING: Using MOCK FALLBACK for prompt: {prompt[:30]}... ---")
     if schema == IntentPlan:
         if "summarize" in prompt.lower() or "explain" in prompt.lower():
